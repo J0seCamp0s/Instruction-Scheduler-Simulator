@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "Scheduler-Simulator/1.0.0": {
+        "runtime": {
+          "Scheduler-Simulator.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Scheduler-Simulator/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

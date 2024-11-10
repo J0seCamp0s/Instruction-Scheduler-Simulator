@@ -1,0 +1,15 @@
+C:\Users\jgabr\Documents\Code\C#\CS3375-Computer Architecture\Instruction-Scheduler-Simulator\Scheduler-Simulator\obj\Debug\net8.0\Scheduler-Simulator.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jgabr\Documents\Code\C#\CS3375-Computer Architecture\Instruction-Scheduler-Simulator\Scheduler-Simulator\obj\Debug\net8.0\Scheduler-Simulator.AssemblyInfoInputs.cache
+C:\Users\jgabr\Documents\Code\C#\CS3375-Computer Architecture\Instruction-Scheduler-Simulator\Scheduler-Simulator\obj\Debug\net8.0\Scheduler-Simulator.AssemblyInfo.cs
+C:\Users\jgabr\Documents\Code\C#\CS3375-Computer Architecture\Instruction-Scheduler-Simulator\Scheduler-Simulator\obj\Debug\net8.0\Scheduler-Simulator.csproj.CoreCompileInputs.cache
+C:\Users\jgabr\Documents\Code\C#\CS3375-Computer Architecture\Instruction-Scheduler-Simulator\Scheduler-Simulator\obj\Debug\net8.0\Scheduler-Simulator.sourcelink.json
+C:\Users\jgabr\Documents\Code\C#\CS3375-Computer Architecture\Instruction-Scheduler-Simulator\Scheduler-Simulator\bin\Debug\net8.0\Scheduler-Simulator.exe
+C:\Users\jgabr\Documents\Code\C#\CS3375-Computer Architecture\Instruction-Scheduler-Simulator\Scheduler-Simulator\bin\Debug\net8.0\Scheduler-Simulator.deps.json
+C:\Users\jgabr\Documents\Code\C#\CS3375-Computer Architecture\Instruction-Scheduler-Simulator\Scheduler-Simulator\bin\Debug\net8.0\Scheduler-Simulator.runtimeconfig.json
+C:\Users\jgabr\Documents\Code\C#\CS3375-Computer Architecture\Instruction-Scheduler-Simulator\Scheduler-Simulator\bin\Debug\net8.0\Scheduler-Simulator.dll
+C:\Users\jgabr\Documents\Code\C#\CS3375-Computer Architecture\Instruction-Scheduler-Simulator\Scheduler-Simulator\bin\Debug\net8.0\Scheduler-Simulator.pdb
+C:\Users\jgabr\Documents\Code\C#\CS3375-Computer Architecture\Instruction-Scheduler-Simulator\Scheduler-Simulator\obj\Debug\net8.0\Scheduler-Simulator.dll
+C:\Users\jgabr\Documents\Code\C#\CS3375-Computer Architecture\Instruction-Scheduler-Simulator\Scheduler-Simulator\obj\Debug\net8.0\refint\Scheduler-Simulator.dll
+C:\Users\jgabr\Documents\Code\C#\CS3375-Computer Architecture\Instruction-Scheduler-Simulator\Scheduler-Simulator\obj\Debug\net8.0\Scheduler-Simulator.pdb
+C:\Users\jgabr\Documents\Code\C#\CS3375-Computer Architecture\Instruction-Scheduler-Simulator\Scheduler-Simulator\obj\Debug\net8.0\Scheduler-Simulator.genruntimeconfig.cache
+C:\Users\jgabr\Documents\Code\C#\CS3375-Computer Architecture\Instruction-Scheduler-Simulator\Scheduler-Simulator\obj\Debug\net8.0\ref\Scheduler-Simulator.dll

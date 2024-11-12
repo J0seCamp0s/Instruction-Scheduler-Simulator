@@ -1,6 +1,6 @@
 namespace InstructionScheduler 
 {
-    public class InOrderScheduler: IScheduler 
+    public class SingleInstruction: IScheduler 
     {
 
     }

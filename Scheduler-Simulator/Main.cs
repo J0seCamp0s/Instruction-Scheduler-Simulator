@@ -6,7 +6,10 @@ namespace InstructionScheduler
     {
         static void Main(string[] args)
         {
-            
+            //Simulate execution
+            while(true) {
+                
+            }
         }
     }
 }

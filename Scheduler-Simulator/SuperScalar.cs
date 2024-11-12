@@ -1,7 +1,7 @@
 namespace InstructionScheduler 
 {
-    public interface IScheduler 
+    public class SuperScaler: IScheduler 
     {
-        
+
     }
 }

@@ -1,7 +1,10 @@
 namespace InstructionScheduler 
 {
-    public class SingleInstruction: IScheduler 
+    public class SingleInstruction: GeneralScheduler
     {
-
+        public override void ScheduleInstructions(string instructionSet)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

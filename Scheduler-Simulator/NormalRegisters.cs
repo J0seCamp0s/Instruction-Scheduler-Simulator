@@ -4,6 +4,9 @@ namespace InstructionScheduler
     {
         private int[] regs = new int[8];
 
+        public NormalRegisters() {
+            
+        }
         public void setRegister(int index, int value) 
         {
             if(index > 7 || index < 0) {

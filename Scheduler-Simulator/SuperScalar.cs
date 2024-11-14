@@ -4,7 +4,12 @@ namespace InstructionScheduler
     {
         public override void ScheduleInstructions(string instructionSet)
         {
-            throw new NotImplementedException();
+            
+        }
+
+        public override void ExecuteInstruction(string instrcution)
+        {
+            
         }
     }
 }

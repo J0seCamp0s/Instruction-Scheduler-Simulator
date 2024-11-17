@@ -11,10 +11,15 @@ namespace InstructionScheduler
         protected Dictionary<string, int> instructionStatus = [];
         protected int instructionsDone = 0;
         protected int fetches;
+        protected bool registerRenamingEnabled;
         public GeneralScheduler(int functionalUnitsNumber, int registerNumber)
         {
             registersWrittenTo = new int[registerNumber];
             registersReadFrom = new int[registerNumber];
+            if(registerNumber > 8)
+            {
+                registerRenamingEnabled = false;
+            }
             foreach(string instruction in instructions)
             {
                 instructionStatus.Add(instruction,0);
@@ -55,7 +60,6 @@ namespace InstructionScheduler
                 Console.WriteLine("The specified file does not exist. Please check the path and try again.");
             }
         }
-        public abstract void ScheduleInstructions();
         public Tuple<List<int>,char> DecodeInstruction(string instruction)
         {
             List<int> registerIndexes = new List<int>{};
@@ -200,5 +204,100 @@ namespace InstructionScheduler
                 }
             }
         }
+
+        public bool RenameRegisters()
+        {
+
+            return true;
+        }
+
+        public void ScheduleInstructions()
+        {
+            int cycle = 0;
+
+            Console.WriteLine("| Cycle # | Instruction Index | Instruction Scheduled | Instruction Done |");
+
+            while(true) 
+            {
+                cycle ++;
+                PrintCycle(cycle,"", "","");
+                DecreaseWaits(cycle);
+
+                //Print finished instructions and remove unused wait times
+                UpdateWaitTimesList();
+
+                //If all instructions done
+                if(instructionsDone == instructions.Count)
+                {
+                    //finish execution
+                    break;
+                }
+                int availableFetches = fetches;
+                //If instruction can be fetched
+                FetchInstructions(availableFetches,cycle);
+            }
+            Console.WriteLine("Execution Done!");
+            Console.WriteLine($"Total Number of Cycles: {cycle}");
+        }
+        public void FetchInstructions(int availableFetches, int cycle)
+        {
+            Tuple<List<int>, char> decodedInstruction;
+            while(availableFetches > 0)
+            {
+                int selectedInstructionIndex = SelectInstruction();
+                //If last instruction wasn't scheduled yet
+                if(selectedInstructionIndex != instructions.Count-1)
+                {
+                    decodedInstruction = DecodeInstruction(instructions[selectedInstructionIndex + 1]);
+                    if(decodedInstruction.Item2 == '\0')
+                    {
+                        //Error in instruction format
+                        Console.WriteLine("Instruction Format Error!");
+                        return;
+                    }
+                    //Check instruction dependencies
+                    if(CheckDependencies(decodedInstruction))
+                    {
+                        //No dependencies
+                        //Schedule next instruction 
+                        int waitTime = SetWaitTime(decodedInstruction.Item2);
+                        waits.Add(selectedInstructionIndex + 1, waitTime);
+                        SetRegistersUsed(true,decodedInstruction.Item1);
+
+                        //Print instruction issue cycle
+                        PrintCycle(cycle,instructions[selectedInstructionIndex + 1], (selectedInstructionIndex + 2).ToString(),"");
+                    }
+                }
+                
+                availableFetches -= 1;
+            }
+        }
+        public bool CheckDependencies(Tuple<List<int>, char> decodedInstruction)
+        {
+            int register;
+
+            //Check for Write after Read and Write after Write dependencies
+            register = decodedInstruction.Item1[0];
+            if(registersWrittenTo[register] > 0 || registersReadFrom[register] > 0)
+            {
+                return false;
+            }
+            //Check for Read after Write dependencies
+            if(decodedInstruction.Item1.Count > 1)
+            {
+                for(int i = 1; i < decodedInstruction.Item1.Count; i++)
+                {
+                    register = decodedInstruction.Item1[i];
+                    if(registersWrittenTo[register] > 0)
+                    {
+                        return false;
+                    }
+                }
+            }
+            //No dependencies
+            return true; 
+        }
+        public abstract void UpdateWaitTimesList();
+        public abstract int SelectInstruction();
     }
 }

@@ -9,33 +9,51 @@ namespace InstructionScheduler
 
         public override int SelectInstruction()
         {
-            int nextUnscheduledIndex = -1;
+            int nextUnscheduledIndex = 0;
             //Find earliest unscheduled instruction
             if(waits.Count > 0)
             {
                 for(int i = 0; i < instructions.Count; i++)
                 {
+                    //Set "instruction can't be scheduled" as default
+                    nextUnscheduledIndex = -1;
+
                     //if instruction hasn't been scheduled yet
-                    if(!waits.Keys.Contains(i))
+                    if(!waits.ContainsKey(i))
                     {
-                        nextUnscheduledIndex = i;
-                        break;
+                        //If latest instruction hasn't been scheduled yet
+                        if(nextUnscheduledIndex != instructions.Count)
+                        {
+                            nextUnscheduledIndex = i;
+                            Tuple<List<int>, char> decodedInstruction;
+                            decodedInstruction = DecodeInstruction(instructions[nextUnscheduledIndex]);
+                            
+                            if(decodedInstruction.Item2 == '\0')
+                            {
+                                //Error in instruction format
+                                Console.WriteLine("Instruction Format Error!");
+                                return -2;
+                            }
+                            //Check instruction dependencies
+                            if(CheckDependencies(decodedInstruction))
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            //No instruction to schedule available
+                            return nextUnscheduledIndex;
+                        } 
                     }
                 }
             }
             return nextUnscheduledIndex;
         }
-        public override void UpdateWaitTimesList()
+        public override void UpdateCycle(int cycle)
         {
-            //Traverse all current keys from the dictionary
-            foreach(int key in waits.Keys)
-            {
-                //Remove wait times that are not needed anymore
-                if(waits[key] == -2)
-                {
-                    waits.Remove(key);
-                }  
-            }
+            PrintCycle(cycle,"", "","");
+            DecreaseWaits(cycle);
         }
     }
 }

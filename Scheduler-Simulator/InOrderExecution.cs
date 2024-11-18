@@ -19,9 +19,44 @@ namespace InstructionScheduler
                     }
                 }
             }
-            return latestInstructionIndex;
+            
+            //If latest instruction hasn't been scheduled
+            if(latestInstructionIndex + 1 != instructions.Count)
+            {
+                Tuple<List<int>, char> decodedInstruction;
+                decodedInstruction = DecodeInstruction(instructions[latestInstructionIndex+1]);
+                
+                if(decodedInstruction.Item2 == '\0')
+                {
+                    //Error in instruction format
+                    Console.WriteLine("Instruction Format Error!");
+                    return -2;
+                }
+                //Check instruction dependencies
+                if(!CheckDependencies(decodedInstruction))
+                {
+                    //Instruction can't be scheduled
+                    return -1;
+                }
+                //Return the next instruction index
+                return latestInstructionIndex + 1;
+            }
+            else
+            {
+                return -1;
+            }
+            
         }
-        public override void UpdateWaitTimesList()
+
+        public override void UpdateCycle(int cycle)
+        {
+            PrintCycle(cycle,"", "","");
+            DecreaseWaits(cycle);
+
+            //Print finished instructions and remove unused wait times
+            UpdateWaitTimesList();
+        }
+        public void UpdateWaitTimesList()
         {
             //Traverse all current keys from the dictionary
             foreach(int key in waits.Keys)

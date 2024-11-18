@@ -220,11 +220,7 @@ namespace InstructionScheduler
             while(true) 
             {
                 cycle ++;
-                PrintCycle(cycle,"", "","");
-                DecreaseWaits(cycle);
-
-                //Print finished instructions and remove unused wait times
-                UpdateWaitTimesList();
+                UpdateCycle(cycle);
 
                 //If all instructions done
                 if(instructionsDone == instructions.Count)
@@ -239,36 +235,34 @@ namespace InstructionScheduler
             Console.WriteLine("Execution Done!");
             Console.WriteLine($"Total Number of Cycles: {cycle}");
         }
+
+        public abstract void UpdateCycle(int cycle);
         public void FetchInstructions(int availableFetches, int cycle)
         {
             Tuple<List<int>, char> decodedInstruction;
             while(availableFetches > 0)
             {
                 int selectedInstructionIndex = SelectInstruction();
-                //If last instruction wasn't scheduled yet
-                if(selectedInstructionIndex != instructions.Count-1)
+                if(selectedInstructionIndex == -2)
                 {
-                    decodedInstruction = DecodeInstruction(instructions[selectedInstructionIndex + 1]);
-                    if(decodedInstruction.Item2 == '\0')
-                    {
-                        //Error in instruction format
-                        Console.WriteLine("Instruction Format Error!");
-                        return;
-                    }
-                    //Check instruction dependencies
-                    if(CheckDependencies(decodedInstruction))
-                    {
-                        //No dependencies
-                        //Schedule next instruction 
-                        int waitTime = SetWaitTime(decodedInstruction.Item2);
-                        waits.Add(selectedInstructionIndex + 1, waitTime);
-                        SetRegistersUsed(true,decodedInstruction.Item1);
-
-                        //Print instruction issue cycle
-                        PrintCycle(cycle,instructions[selectedInstructionIndex + 1], (selectedInstructionIndex + 2).ToString(),"");
-                    }
+                    //Error in instruction format
+                    Console.WriteLine("Instruction Format Error!");
+                    return;
                 }
-                
+                //If instruction can be scheduled
+                if(selectedInstructionIndex > -1)
+                {
+                    //No dependencies
+                    //Schedule next instruction 
+                    decodedInstruction = DecodeInstruction(instructions[selectedInstructionIndex]);
+                    int waitTime = SetWaitTime(decodedInstruction.Item2);
+                    waits.Add(selectedInstructionIndex, waitTime);
+                    SetRegistersUsed(true,decodedInstruction.Item1);
+
+                    //Print instruction issue cycle
+                    PrintCycle(cycle,instructions[selectedInstructionIndex], (selectedInstructionIndex + 1).ToString(),"");
+                }
+                //Decrease available fetches
                 availableFetches -= 1;
             }
         }
@@ -297,7 +291,6 @@ namespace InstructionScheduler
             //No dependencies
             return true; 
         }
-        public abstract void UpdateWaitTimesList();
         public abstract int SelectInstruction();
     }
 }

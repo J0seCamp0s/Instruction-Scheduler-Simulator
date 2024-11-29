@@ -23,6 +23,10 @@ namespace InstructionScheduler
             //If latest instruction hasn't been scheduled
             if(latestInstructionIndex + 1 != instructions.Count)
             {
+                if(registerRenamingEnabled)
+                {
+                    UpdateInstructions(latestInstructionIndex + 1);
+                }
                 Tuple<List<int>, char> decodedInstruction;
                 decodedInstruction = DecodeInstruction(instructions[latestInstructionIndex+1]);
                 

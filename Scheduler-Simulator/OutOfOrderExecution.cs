@@ -25,6 +25,10 @@ namespace InstructionScheduler
                         if(nextUnscheduledIndex != instructions.Count)
                         {
                             nextUnscheduledIndex = i;
+                            if(registerRenamingEnabled)
+                            {
+                                UpdateInstructions(nextUnscheduledIndex);
+                            }
                             Tuple<List<int>, char> decodedInstruction;
                             decodedInstruction = DecodeInstruction(instructions[nextUnscheduledIndex]);
                             

@@ -6,6 +6,9 @@ namespace InstructionScheduler
     {
         protected int[] registersReadFrom;
         protected int[] registersWrittenTo;
+        //Item1 = temporary register index,
+        //Item2 = normal register being renamed index
+        protected List<Tuple<int, int>> renamingRules;  
         protected List<string> instructions = [];
         protected Dictionary<int, int> waits = [];
         protected Dictionary<string, int> instructionStatus = [];
@@ -18,7 +21,8 @@ namespace InstructionScheduler
             registersReadFrom = new int[registerNumber];
             if(registerNumber > 8)
             {
-                registerRenamingEnabled = false;
+                registerRenamingEnabled = true;
+                renamingRules = [];
             }
             foreach(string instruction in instructions)
             {
@@ -68,7 +72,7 @@ namespace InstructionScheduler
             
             for(int i = 0; i < instruction.Length; i++)
             {
-                if(instruction[i] == 'R')
+                if(instruction[i] == 'R'||instruction[i] == 'T')
                 {
                     try
                         {
@@ -80,7 +84,16 @@ namespace InstructionScheduler
                             }
                             else
                             {
-                                registerIndexes.Add(registerIndex);
+                                //If regular register used
+                                if(instruction[i] == 'R')
+                                {
+                                    registerIndexes.Add(registerIndex);
+                                }
+                                //If extra temporary regiter used
+                                else
+                                {
+                                    registerIndexes.Add(registerIndex + 8);
+                                }
                             }
                         }
                         catch(IndexOutOfRangeException)
@@ -151,11 +164,10 @@ namespace InstructionScheduler
         }
         public void DecreaseWaits(int cycle)
         {
-            int freeWaits = 0;
+            
             //First iteration
             if(waits.ContainsKey(-1))
             {
-                freeWaits = waits[-1];
                 waits.Clear();
                 return;
             }
@@ -203,12 +215,6 @@ namespace InstructionScheduler
                     registersReadFrom[registersUsed[i]] += change;
                 }
             }
-        }
-
-        public bool RenameRegisters()
-        {
-
-            return true;
         }
 
         public void ScheduleInstructions()
@@ -268,10 +274,8 @@ namespace InstructionScheduler
         }
         public bool CheckDependencies(Tuple<List<int>, char> decodedInstruction)
         {
-            int register;
-
             //Check for Write after Read and Write after Write dependencies
-            register = decodedInstruction.Item1[0];
+            int register = decodedInstruction.Item1[0];
             if(registersWrittenTo[register] > 0 || registersReadFrom[register] > 0)
             {
                 return false;
@@ -290,6 +294,92 @@ namespace InstructionScheduler
             }
             //No dependencies
             return true; 
+        }
+
+        public void RenameRegister(Tuple<int, int> renamingRule, int instructionToRenameIndex)
+        {
+            //Look for instruction based on index
+            //Replace R# register with T# register
+            string instruction = instructions[instructionToRenameIndex];
+            string renaming = 'T' + (renamingRule.Item1 - 8).ToString();
+            string stringToReplace = 'R' + renamingRule.Item2.ToString();
+            string renamedInstruction = instruction.Replace(stringToReplace, renaming);
+            instructions[instructionToRenameIndex] = renamedInstruction;
+        }
+
+        public void UpdateInstructions(int instructionIndex)
+        {
+            //Decode instruction and store it in local variable
+            Tuple<List<int>, char> decodedInstruction = DecodeInstruction(instructions[instructionIndex]);  
+
+            //Remove unused renaming rules before checking      
+            UpdateRenamingRules();
+
+            //If there are renaming rules in place
+            if(renamingRules.Count > 0)
+            {
+                for(int j = 0; j < decodedInstruction.Item1.Count; j++)
+                {
+                    //Find a renaming rule already in place for current register
+                    for(int i = 0; i < renamingRules.Count; i++)
+                    {
+                        //If renaming rule was found for current register
+                        if(renamingRules[i].Item2 == decodedInstruction.Item1[j])
+                        {
+                            //Rename register at instructionIndex using renaming rule i
+                            RenameRegister(renamingRules[i], instructionIndex);
+                            break;
+                        }
+                    }
+                }   
+            }
+
+            //Check for Write after Read and Write after Write dependencies
+            int register = decodedInstruction.Item1[0];
+            if(registersWrittenTo[register] > 0 || registersReadFrom[register] > 0)
+            {
+                //If no renaming rule was found, add one if possible and needed
+                //Find first temporary register that is not in use
+                for(int i = 8; i < registersWrittenTo.Length; i++)
+                {
+                    //If current register is not in use
+                    if(registersWrittenTo[i] == 0 && registersReadFrom[i] == 0)
+                    {
+                        //Add new renaming rule with current temporary register
+                        Tuple<int, int> renamingRule = new Tuple<int, int> (i,decodedInstruction.Item1[0]);
+                        renamingRules.Add(renamingRule);
+                        //Rename register at instructionIndex using renamingRule
+                        RenameRegister(renamingRule, instructionIndex);
+                        break;
+                    }
+                }
+            }
+            
+            return;
+        }
+
+        void UpdateRenamingRules()
+        {
+            for(int i = 8; i < registersWrittenTo.Length; i++)
+            {
+                //If current temporary register is not in use
+                if(registersWrittenTo[i] == 0 && registersReadFrom[i] == 0)
+                {
+                    //If there are renaming rules in place
+                    if(renamingRules.Count > 0)
+                    {
+                        for(int j = 0; j < renamingRules.Count; j++)
+                        {
+                            //If current renaming rule is for register i
+                            if(renamingRules[j].Item1 == i)
+                            {
+                                //Remove it, no longer needed
+                                renamingRules.Remove(renamingRules[j]);
+                            }
+                        }
+                    }
+                }
+            }
         }
         public abstract int SelectInstruction();
     }

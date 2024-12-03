@@ -172,8 +172,10 @@ namespace InstructionScheduler
                 waits.Clear();
                 return;
             }
+            List<int> keys = new List<int>(waits.Keys);
+            keys.Sort();
             //Regular iteration
-            foreach(int key in waits.Keys)
+            foreach(int key in keys)
             {
                 //Decrease each wait
                 waits[key] -= 1;
@@ -193,13 +195,13 @@ namespace InstructionScheduler
 
                     //Release registers used
                     Tuple<List<int>, char> decodedInstruction = DecodeInstruction(instructions[key]);
-                    SetRegistersUsed(false, decodedInstruction.Item1);
+                    SetRegistersUsed(false, decodedInstruction);
                 }
             }
             return;
         }
 
-        public void SetRegistersUsed(bool operationType, List<int> registersUsed)
+        public void SetRegistersUsed(bool operationType, Tuple<List<int>, char> decodedInstruction)
         {
             //Increase by default
             int change = 1;
@@ -208,12 +210,25 @@ namespace InstructionScheduler
             {
                 change = -1;
             }
-            registersWrittenTo[registersUsed[0]] += change;
-            if(registersUsed.Count > 1)
+            //If instruction is Store instruction
+            if(decodedInstruction.Item2 == 'S')
             {
-                for(int i = 0; i < registersUsed.Count; i++)
+                //Currently reading from register used
+                registersReadFrom[decodedInstruction.Item1[0]] += change;
+            }
+            //Instruction is arithmetic operation or Load
+            else
+            {
+                //Currently writting from register used
+                registersWrittenTo[decodedInstruction.Item1[0]] += change;
+            }
+            //If arithmetic operation
+            if(decodedInstruction.Item1.Count > 1)
+            {
+                //Set second and third registers as being read from
+                for(int i = 1; i < decodedInstruction.Item1.Count; i++)
                 {
-                    registersReadFrom[registersUsed[i]] += change;
+                    registersReadFrom[decodedInstruction.Item1[i]] += change;
                 }
             }
         }
@@ -264,7 +279,7 @@ namespace InstructionScheduler
                     decodedInstruction = DecodeInstruction(instructions[selectedInstructionIndex.Item1]);
                     int waitTime = SetWaitTime(decodedInstruction.Item2);
                     waits.Add(selectedInstructionIndex.Item1, waitTime);
-                    SetRegistersUsed(true,decodedInstruction.Item1);
+                    SetRegistersUsed(true,decodedInstruction);
 
                     //Print instruction issue cycle
                     PrintCycle(cycle,instructions[selectedInstructionIndex.Item1], (selectedInstructionIndex.Item1 + 1).ToString(),"");
@@ -374,6 +389,9 @@ namespace InstructionScheduler
                     }
                 }
             }
+            //Reassign value of register to firt register used in case it was change
+            register = decodedInstruction.Item1[0];
+
             if(registersWrittenTo[register] > 0 || registersReadFrom[register] > 0)
             {
                 //If no renaming rule was found, add one if possible and needed

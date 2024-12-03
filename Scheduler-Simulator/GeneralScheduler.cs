@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 namespace InstructionScheduler 
 {
     public abstract class GeneralScheduler: IScheduler
@@ -248,28 +249,29 @@ namespace InstructionScheduler
             Tuple<List<int>, char> decodedInstruction;
             while(availableFetches > 0)
             {
-                int selectedInstructionIndex = SelectInstruction();
-                if(selectedInstructionIndex == -2)
+                Tuple<int, int> selectedInstructionIndex = SelectInstruction();
+                if(selectedInstructionIndex.Item1 == -2)
                 {
                     //Error in instruction format
                     Console.WriteLine("Instruction Format Error!");
                     return;
                 }
                 //If instruction can be scheduled
-                if(selectedInstructionIndex > -1)
+                if(selectedInstructionIndex.Item1 > -1)
                 {
                     //No dependencies
                     //Schedule next instruction 
-                    decodedInstruction = DecodeInstruction(instructions[selectedInstructionIndex]);
+                    decodedInstruction = DecodeInstruction(instructions[selectedInstructionIndex.Item1]);
                     int waitTime = SetWaitTime(decodedInstruction.Item2);
-                    waits.Add(selectedInstructionIndex, waitTime);
+                    waits.Add(selectedInstructionIndex.Item1, waitTime);
                     SetRegistersUsed(true,decodedInstruction.Item1);
 
                     //Print instruction issue cycle
-                    PrintCycle(cycle,instructions[selectedInstructionIndex], (selectedInstructionIndex + 1).ToString(),"");
+                    PrintCycle(cycle,instructions[selectedInstructionIndex.Item1], (selectedInstructionIndex.Item1 + 1).ToString(),"");
                 }
-                //Decrease available fetches
-                availableFetches -= 1;
+                //Decrease available fetches by amount in selectedInstructionIndex.Item2, 
+                //benched instructions will have a 0
+                availableFetches -= selectedInstructionIndex.Item2;
             }
         }
         public bool CheckDependencies(Tuple<List<int>, char> decodedInstruction)
@@ -303,6 +305,11 @@ namespace InstructionScheduler
             string instruction = instructions[instructionToRenameIndex];
             string renaming = 'T' + (renamingRule.Item1 - 8).ToString();
             string stringToReplace = 'R' + renamingRule.Item2.ToString();
+            if(renamingRule.Item2 >= 8)
+            {
+                int temproraryIndex = renamingRule.Item2 - 8;
+                stringToReplace = 'T' + temproraryIndex.ToString();
+            }
             string renamedInstruction = instruction.Replace(stringToReplace, renaming);
             instructions[instructionToRenameIndex] = renamedInstruction;
         }
@@ -320,15 +327,31 @@ namespace InstructionScheduler
             {
                 for(int j = 0; j < decodedInstruction.Item1.Count; j++)
                 {
-                    //Find a renaming rule already in place for current register
-                    for(int i = 0; i < renamingRules.Count; i++)
+                    bool renamingFound = true;
+                    //Find last renaming possible for each register
+                    while(renamingFound)
                     {
-                        //If renaming rule was found for current register
-                        if(renamingRules[i].Item2 == decodedInstruction.Item1[j])
+                        //Find a renaming rule already in place for current register
+                        for(int i = 0; i < renamingRules.Count; i++)
                         {
-                            //Rename register at instructionIndex using renaming rule i
-                            RenameRegister(renamingRules[i], instructionIndex);
-                            break;
+                            //If renaming rule was found for current register
+                            if(renamingRules[i].Item2 == decodedInstruction.Item1[j])
+                            {
+                                //Rename register at instructionIndex using renaming rule i
+                                RenameRegister(renamingRules[i], instructionIndex);
+                                break;
+                            }
+                        }
+                        //Store previous decoded instruction
+                        Tuple<List<int>, char> decodedInstructionPrevious = decodedInstruction;
+
+                        //Decode instruction to update used registers
+                        decodedInstruction = DecodeInstruction(instructions[instructionIndex]);
+
+                        //If previous decoded instruction is same as current, no renaming rule was found
+                        if(decodedInstruction.Item1.SequenceEqual(decodedInstructionPrevious.Item1))
+                        {
+                            renamingFound = false;
                         }
                     }
                 }   
@@ -336,6 +359,21 @@ namespace InstructionScheduler
 
             //Check for Write after Read and Write after Write dependencies
             int register = decodedInstruction.Item1[0];
+
+            //Check for Read after Write dependencies
+            //If instruction can't be scheduled regardless,
+            //don't add new renaming rules
+            if(decodedInstruction.Item1.Count > 1)
+            {
+                for(int i = 1; i < decodedInstruction.Item1.Count; i++)
+                {
+                    register = decodedInstruction.Item1[i];
+                    if(registersWrittenTo[register] > 0)
+                    {
+                        return;
+                    }
+                }
+            }
             if(registersWrittenTo[register] > 0 || registersReadFrom[register] > 0)
             {
                 //If no renaming rule was found, add one if possible and needed
@@ -381,6 +419,6 @@ namespace InstructionScheduler
                 }
             }
         }
-        public abstract int SelectInstruction();
+        public abstract Tuple<int, int> SelectInstruction();
     }
 }

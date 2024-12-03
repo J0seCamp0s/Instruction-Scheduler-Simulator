@@ -5,7 +5,7 @@ namespace InstructionScheduler
         public InOrderExecution(int functionalUnitsNumber, int registerNumber)
         : base(functionalUnitsNumber,registerNumber){}
 
-        public override int SelectInstruction()
+        public override Tuple<int,int> SelectInstruction()
         {
             int latestInstructionIndex = -1;
             //Find latest instruction index
@@ -34,20 +34,20 @@ namespace InstructionScheduler
                 {
                     //Error in instruction format
                     Console.WriteLine("Instruction Format Error!");
-                    return -2;
+                    return new Tuple<int,int> (-2,1);
                 }
                 //Check instruction dependencies
                 if(!CheckDependencies(decodedInstruction))
                 {
                     //Instruction can't be scheduled
-                    return -1;
+                    return new Tuple<int,int> (-1,1);
                 }
                 //Return the next instruction index
-                return latestInstructionIndex + 1;
+                return new Tuple<int,int> (latestInstructionIndex + 1,1);
             }
             else
             {
-                return -1;
+                return new Tuple<int,int> (-1,1);
             }
             
         }

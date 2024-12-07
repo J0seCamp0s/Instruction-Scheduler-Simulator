@@ -11,8 +11,10 @@ namespace InstructionScheduler
             //Find latest instruction index
             if(waits.Count > 0)
             {
+                //Traverse all keys from waits dictionary
                 foreach(int key in waits.Keys)
                 {
+                    //Replace previous latestInstructionIndex if current key is bigger
                     if(key > latestInstructionIndex)
                     {
                         latestInstructionIndex = key;
@@ -25,9 +27,13 @@ namespace InstructionScheduler
             {
                 if(registerRenamingEnabled)
                 {
+                    //Apply register renaming (if any)
                     UpdateInstructions(latestInstructionIndex + 1);
                 }
+
+                //Make tuple to store decoded instruction
                 Tuple<List<int>, char> decodedInstruction;
+                //Decode instruction at latestInstructionIndex in instructions list
                 decodedInstruction = DecodeInstruction(instructions[latestInstructionIndex+1]);
                 
                 if(decodedInstruction.Item2 == '\0')
@@ -51,15 +57,15 @@ namespace InstructionScheduler
             }
             
         }
-
         public override void UpdateCycle(int cycle)
         {
             PrintCycle(cycle,"", "","");
-            DecreaseWaits(cycle);
-
             //Print finished instructions and remove unused wait times
             UpdateWaitTimesList();
+            DecreaseWaits(cycle);
         }
+        //Force instructions to finish in order
+        //Make later scheduled instructions to take at least as much time as the earliest instruction scheduled
         public void UpdateWaitTimesList()
         {
             //Traverse all current keys from the dictionary

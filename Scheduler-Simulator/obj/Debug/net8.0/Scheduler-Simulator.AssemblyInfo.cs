@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Scheduler-Simulator")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5c369df8a225a210741ea85b7583d8989c7dfebd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b6cfb8d2fc12b5d125d2165c7788712438a83165")]
 [assembly: System.Reflection.AssemblyProductAttribute("Scheduler-Simulator")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Scheduler-Simulator")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

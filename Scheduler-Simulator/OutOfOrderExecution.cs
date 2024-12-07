@@ -71,12 +71,16 @@ namespace InstructionScheduler
             }
             return new Tuple<int, int> (nextUnscheduledIndex,1);
         }
+        //Find the earliest benched instruction to schedule
         private Tuple<int,int> ScheduleBenchedInstructions()
         {
+            //If there are any benched instructions
             if(benchedInstructions.Count > 0)
             {
+                //Iterate over the instruction indexes in the benchedInstructions array
                 foreach(int instructionIndex in benchedInstructions)
                 {
+                    //Make a tuple to store decoded instruction at instructionIndex in instructions list
                     Tuple<List<int>, char> decodedInstruction;
                     decodedInstruction = DecodeInstruction(instructions[instructionIndex]);
                     

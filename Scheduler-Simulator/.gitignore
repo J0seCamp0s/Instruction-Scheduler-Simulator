@@ -1,0 +1,58 @@
+# Build Folders
+bin/
+obj/
+
+# User-Specific Files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vscode/
+.idea/
+*.sln.iml
+
+# Temporary Files
+*.log
+*.vs/
+.TemporaryGeneratedFile_*
+~$*
+
+# Package Management
+packages/
+project.lock.json
+project.assets.json
+.nuget/
+*.nupkg
+*.snupkg
+
+# Rider and JetBrains
+*.sln.ide/
+.idea/
+*.sln.iml
+
+# Resharper files
+*_Resharper.*
+**/resharper.xml
+
+# Debug and Release folders
+Debug/
+Release/
+
+# .NET Core / .NET 5+ generated files
+app.db
+*.pidb
+*.psess
+*.vsp
+*.vspx
+*.dll
+*.exe
+*.pdb
+*.cache
+*.csproj.user
+*.csproj.nuget.g.props
+*.csproj.nuget.g.targets
+
+# Security and Secrets
+secrets.json
+appsettings.json
+appsettings.Development.json
